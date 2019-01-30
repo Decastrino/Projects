@@ -3,7 +3,7 @@ Created on Sun Feb 21 13:26:10 2017
 
 """
 #import the class commands from commands.py
-from Commands import Commands
+from commands import Commands
 
 #class to append commands to a list, get the commands, and return command counts
 class History(object):
