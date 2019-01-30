@@ -1,4 +1,4 @@
-Scheduler:
+Assignments/04-Scheduling:
 Implementation of a job scheduler to handle jobs and processes using python 3 and the OS module library.
 
 Mini shell project:
