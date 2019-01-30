@@ -1,7 +1,12 @@
-GPU PROGRAMMING 
+GPU PROGRAMMING.
+---------------
 DEPTH FIRST TRAVERSAL OF A GRAPH USING THE GPU 
-MIDWESTERN STATE UNIVERSITY 
-OLAYINKA SOYINKA, OLUWASEYI TINUBU 
+
+MIDWESTERN STATE UNIVERSITY.
+
+OLAYINKA SOYINKA, OLUWASEYI TINUBU
+
+
 High performance computing is a growing branch of computer science, and can be applied to many fields, especially fields in which data
 can get really large in areas like graph processing, data mining, data processing etc. This project compares the sequential depth first
 traversal of a graph using the CPU with one executed in parallel using the GPU. 
