@@ -1,0 +1,133 @@
+// =========================== WYSIWYG ==========================
+// MEMBERS
+// Oluwaseyi Tinubu
+// Olayinka Soyinka
+ 
+//  DFS TRAVERSAL
+// The program recursively traverses a  graph using the depth first search
+// algorithm from each node in the graph, this is a trivial problem if the 
+// problem size is small, as the problem size (nodes) becomes larger, it
+// takes a lot of time and that's where parallization comes in.
+//
+// The number of nodes can be adjusted manually and the graph is randomly 
+// generated using an adjacency matrix. A small node size of 10 is used for
+// practical purpose to show that every part of the graph is working (structure,
+// node generation and traversal). For the real program, traversal will be timed
+// as printing out itself adds to time taken.
+ 
+// Compilation -> gcc DFS.c -o dfs 
+// execution -> ./dfs > output.txt
+// output.txt file contains graph structure and time taken for traversal
+  
+ 
+#include <stdio.h>
+#include <stdlib.h>
+#include "timer.h"
+ 
+// function prototypes
+int randomGenerator();
+void DFS(int,int ** ,int );
+void dfsVisit(int , int *,int, int **);
+ 
+int main()
+{
+    // variables for nodes
+    int numberOfNodes=8192;
+    int i,j;
+    double start, finish, time_taken;
+     
+    // adjacency matrix
+    int **graph;
+    graph = (int **) malloc (numberOfNodes * sizeof(int*));
+     
+    // alocate inner arrays
+    for(i=0;i< numberOfNodes;i++)
+    {
+        graph[i]= (int *) malloc (numberOfNodes * sizeof(int));
+    }
+     
+     
+     
+    // initialize adjacency matrix randomly
+    // zeros for empty edges and one for connected edges
+    for(i=0;i< numberOfNodes;i++)
+    {
+        for(j=0;j<numberOfNodes-1;j++)
+        {
+            graph[i][j] = randomGenerator();
+        }
+    }
+     
+     
+    GET_TIME(start);
+     
+    // loop to start DFS traversal from different nodes
+    for(i=0;i<numberOfNodes;i++)
+    {
+        DFS(i,graph, numberOfNodes);
+    }
+    GET_TIME(finish);
+     
+    time_taken = finish - start;
+    printf("\n========================= \n");
+    printf("\nTime taken is %fs  \n", time_taken);
+    return 0;
+}
+ 
+ 
+// function to generate random zeros and ones
+int randomGenerator()
+{
+    int randomNumber;
+     
+    randomNumber = rand() % 2;
+     
+    return randomNumber;
+}
+ 
+// function for dfs intialization
+// accepts a start node, the graph, and the number of nodes in the graph
+ 
+void DFS(int start,int ** graph,int numberOfNodes)
+{
+    // create an array to check if a node has been visited or not
+    int *visited;
+    visited = (int *) malloc (numberOfNodes*sizeof(int)); 
+     
+    int i;
+    // intialize all nodes to not visited
+    for(i=0;i< numberOfNodes;i++)
+    {
+        visited[i] =0;
+    }
+     
+    // loop to make sure all nodes are visited
+    for(i=start;i<numberOfNodes;i++)
+    {
+        if(visited[i]==0) // if node hasn't been visited
+        {
+            dfsVisit(i, visited,numberOfNodes, graph);
+        }
+    }
+}
+ 
+// function to recursively traverse the graph
+// accepts the current node, array storing if a node has been visited or not, number of nodes
+// and the graph to be traversed
+void dfsVisit(int node, int *visited,int numberOfNodes, int **graph)
+{
+    // set the current node to visited
+    visited[node]=1;
+     
+    // traverse the edges connected to the current node
+    int j;
+    for(j=0;j<numberOfNodes;j++)
+    {
+        if(graph[node][j]==1 && visited[j]==0) // if edge is connected and it hasn't been visited
+        {
+            dfsVisit(j, visited, numberOfNodes, graph); // recursively visit connected nodes.
+        }
+    }
+     
+     
+}
