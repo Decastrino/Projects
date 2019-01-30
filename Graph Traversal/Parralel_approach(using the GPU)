@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include "cuda.h"
+
+// function prototypes
+int randomGenerator();
+
+
+__global__ void kernel (int ** graph, int *numberOfNodes)
+{
+	// get threadId
+	int row = blockIdx.y * (32) + threadIdx.y;
+	int column = blockIdx.x * (32) + threadIdx.x;
+	
+	graph[row][column] += 2;
+	
+}
+
+int main()
+{
+	// variables for nodes
+	int numberOfNodes=64, *numberOfNodes_D;
+	int i,j, blocks, threadsPerBlock;
+	//double start, finish, time_taken;
+	
+	// adjacency matrix
+	int **graph, **graph_D;
+	graph = (int **) malloc (numberOfNodes * sizeof(int*));
+	
+	// alocate inner arrays
+	for(i=0;i< numberOfNodes;i++)
+	{
+		graph[i]= (int *) malloc (numberOfNodes * sizeof(int));
+	}
+	
+	
+	
+	// initialize adjacency matrix randomly
+	// zeros for empty edges and one for connected edges
+	for(i=0;i< numberOfNodes;i++)
+	{
+		for(j=0;j<numberOfNodes-1;j++)
+		{
+			graph[i][j] = randomGenerator();
+			//graph[i][j] = 1;
+		}
+	}
+	
+	// allocate memory for adjacency matrix on device
+	cudaMalloc((void**) &graph_D,(numberOfNodes * sizeof(int *)));
+	/*  for(i=0;i< numberOfNodes;i++)
+	{
+		 cudaMalloc((void **) &graph_D[i], numberOfNodes * sizeof(int));
+	} */
+	cudaMalloc((void**) & numberOfNodes_D, (sizeof(int)));
+	
+	// get number of blocks needed for calcualtion
+	threadsPerBlock = 32;
+	blocks = numberOfNodes/ threadsPerBlock;
+	
+	//cudaMemcpy(graph_D, graph, numberOfNodes * sizeof(int *), cudaMemcpyHostToDevice );
+	cudaMemcpy2D(graph_D,numberOfNodes * sizeof(int),graph, numberOfNodes * sizeof(int), numberOfNodes * sizeof(int), numberOfNodes, cudaMemcpyHostToDevice);
+	cudaMemcpy(numberOfNodes_D, &numberOfNodes, sizeof(int), cudaMemcpyHostToDevice);
+	
+	// ensure computational grid matches adjacency matrix layout
+	dim3 dimGrid(blocks,blocks);
+	dim3 dimBlock(threadsPerBlock,threadsPerBlock);
+	
+	// call kernel
+	kernel<<<dimGrid, dimBlock>>> (graph_D, numberOfNodes_D);
+	cudaThreadSynchronize();
+
+	cudaMemcpy(graph, graph_D, numberOfNodes * sizeof(int *), cudaMemcpyDeviceToHost );
+	//cudaDeviceSynchronize();
+	
+	// loop to print structure of graph
+	printf("GRAPH STRUCTURE \n");
+	printf("========================= \n");
+	 for(i=0;i< numberOfNodes;i++)
+	{
+		printf("[%d]-> ", i+1);
+		for(j=0;j<numberOfNodes-1;j++)
+		{
+			printf("%d ",graph[i][j]);
+		}
+		printf("\n");
+	} 
+	
+	return 0;
+}
+
+// function to generate random zeros and ones
+int randomGenerator()
+{
+	int randomNumber;
+	
+	randomNumber = rand() % 2;
+	
+	return randomNumber;
+}
